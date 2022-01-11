@@ -18,8 +18,14 @@ class Game
   def play
     p @word
     draw_dashes
-    solicit_guess
-    game_won?
+    6.times do
+      solicit_guess
+      letter_guess
+      if game_won?
+        puts "You win!"
+        break
+      end
+    end
   end
 
   def draw_dashes
@@ -34,18 +40,16 @@ class Game
     puts ""
     puts "Enter your guess (a letter or the entire word):"
     @guess = gets.chomp.downcase
-    letter_guess if @guess.length == 1
-    game_won? if @guess.length > 1
   end
 
   def letter_guess
-    
+    if @guess.length == 1
+      
+    end
   end
 
   def game_won?
-    if @guess == @word
-      puts "You win!"
-    end
+    @guess == @word
   end
 end
 
