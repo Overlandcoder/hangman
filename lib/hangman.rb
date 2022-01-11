@@ -1,6 +1,4 @@
 class Game
-  attr_reader :word
-
   def initialize
     dictionary = File.open("5desk.txt", "r")
     words = File.readlines("5desk.txt", chomp: true)
@@ -19,20 +17,35 @@ class Game
 
   def play
     p @word
-    board = Board.new
-    board.draw_dashes(@word)
+    draw_dashes
+    solicit_guess
+    game_won?
   end
-end
 
-class Board
-
-  def draw_dashes(word)
+  def draw_dashes
     dashes = ""
-    puts word.length
-    word.length.times do
-      dashes += "_"
+    @word.length.times do
+      dashes += "_ "
     end
     puts dashes
+  end
+
+  def solicit_guess
+    puts ""
+    puts "Enter your guess (a letter or the entire word):"
+    @guess = gets.chomp.downcase
+    letter_guess if @guess.length == 1
+    game_won? if @guess.length > 1
+  end
+
+  def letter_guess
+    
+  end
+
+  def game_won?
+    if @guess == @word
+      puts "You win!"
+    end
   end
 end
 
