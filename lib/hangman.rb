@@ -3,6 +3,7 @@ class Game
     dictionary = File.open("5desk.txt", "r")
     words = File.readlines("5desk.txt", chomp: true)
     randomize(words)
+    draw_dashes
     @guesses = []
     @wrong_guesses = []
     @turns_remaining = 6
@@ -11,27 +12,27 @@ class Game
   def randomize(words)
     @word = []
   
-      until !@word.empty?
-        if (words.sample.length >= 5 && words.sample.length <= 12)
-          @word = words.sample.downcase.gsub(/\W+/, '')
-        end
-      end
+    until !@word.empty?
+      @word = words.sample.downcase.gsub(/\W+/, '')
+      randomize(words) if (@word.length < 5 || @word.length > 12)
+    end
   end
 
   def play
-    p @word
-    draw_dashes
+    puts @word
     loop do
-      puts "Incorrect guesses left: #{@turns_remaining}"
+      puts ""
+      puts "Wrong guesses left: #{@turns_remaining}"
+      puts "Incorrect: #{@wrong_guesses.join(" ")}" if !@wrong_guesses.empty?
       solicit_guess
-      letter_guess
+      check_answer
       puts @dashes.join unless game_won?
       if game_won?
         puts "You win!"
         break
       end
       if game_over?
-        puts "Game over."
+        puts "Game over. The word was: #{@word}."
         break
       end
     end
@@ -55,18 +56,20 @@ class Game
     end
   end
 
-  def letter_guess
+  def check_answer
     if @guess.length == 1
       if @word.include?(@guess)
         @guesses << @guess
-        give_feedback
+        add_letters
       else
         wrong_guess
       end
+    else
+      @turns_remaining -= 1 if !game_won?
     end
   end
 
-  def give_feedback
+  def add_letters
     @word.split("").each_with_index do |val, idx|
       @dashes[idx] = @guess if @guess == val
     end
@@ -74,12 +77,11 @@ class Game
 
   def wrong_guess
     @wrong_guesses << @guess
-    puts "Incorrect: #{@wrong_guesses.join(" ")}"
     @turns_remaining -= 1
   end
 
   def game_won?
-    @guess == @word
+    @guess == @word || @dashes.join == @word
   end
 
   def game_over?
