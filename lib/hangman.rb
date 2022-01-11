@@ -6,11 +6,11 @@ class Game
   end
 
   def randomize(words)
-    @word = ""
+    @word = []
   
       until !@word.empty?
         if (words.sample.length >= 5 && words.sample.length <= 12)
-          @word = words.sample.downcase
+          @word = words.sample.downcase.gsub(/\W+/, '')
         end
       end
   end
@@ -18,9 +18,10 @@ class Game
   def play
     p @word
     draw_dashes
-    6.times do
+    4.times do
       solicit_guess
       letter_guess
+      update_dashes
       if game_won?
         puts "You win!"
         break
@@ -29,11 +30,11 @@ class Game
   end
 
   def draw_dashes
-    dashes = ""
+    @dashes = []
     @word.length.times do
-      dashes += "_ "
+      @dashes << "_ "
     end
-    puts dashes
+    puts @dashes.join
   end
 
   def solicit_guess
@@ -44,8 +45,18 @@ class Game
 
   def letter_guess
     if @guess.length == 1
-      
+      place_letter if @word.include?(@guess)
     end
+  end
+
+  def place_letter
+    @word.split("").each_with_index do |val, idx|
+      @dashes[idx] = @guess if @guess == val
+    end
+  end
+
+  def update_dashes
+    puts @dashes.join
   end
 
   def game_won?
