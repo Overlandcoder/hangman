@@ -3,10 +3,9 @@ class Game
     dictionary = File.open("5desk.txt", "r")
     words = File.readlines("5desk.txt", chomp: true)
     randomize(words)
-    draw_dashes
     @guesses = []
-    @wrong_guesses = []
-    @turns_remaining = 6
+    @incorrect_guesses = []
+    @incorrect_remaining = 6
   end
 
   def randomize(words)
@@ -19,11 +18,10 @@ class Game
   end
 
   def play
-    puts @word
+    intro_text
+    draw_dashes
     loop do
-      puts ""
-      puts "Wrong guesses left: #{@turns_remaining}"
-      puts "Incorrect: #{@wrong_guesses.join(" ")}" if !@wrong_guesses.empty?
+      incorrect_info
       solicit_guess
       check_answer
       puts @dashes.join unless game_won?
@@ -38,6 +36,11 @@ class Game
     end
   end
 
+  def intro_text
+    puts "Let's play Hangman! Enter 1 to start a new game or 2 to load a saved game."
+    puts "Enter 'save' at any point to save the game." 
+  end
+
   def draw_dashes
     @dashes = []
     @word.length.times do
@@ -46,11 +49,17 @@ class Game
     puts @dashes.join
   end
 
+  def incorrect_info
+    puts ""
+    puts "Incorrect guesses left: #{@incorrect_remaining}"
+    puts "Incorrect: #{@incorrect_guesses.join(" ")}" if !@incorrect_guesses.empty?
+  end
+
   def solicit_guess
     puts ""
     puts "Enter your guess (a letter or the entire word):"
     @guess = gets.chomp.downcase
-    if @guesses.include?(@guess) || @wrong_guesses.include?(@guess)
+    if @guesses.include?(@guess) || @incorrect_guesses.include?(@guess)
       puts "You've already guessed that letter! Try again."
       solicit_guess
     end
@@ -62,10 +71,10 @@ class Game
         @guesses << @guess
         add_letters
       else
-        wrong_guess
+        incorrect_guess
       end
     else
-      @turns_remaining -= 1 if !game_won?
+      @incorrect_remaining -= 1 if !game_won?
     end
   end
 
@@ -75,9 +84,9 @@ class Game
     end
   end
 
-  def wrong_guess
-    @wrong_guesses << @guess
-    @turns_remaining -= 1
+  def incorrect_guess
+    @incorrect_guesses << @guess
+    @incorrect_remaining -= 1
   end
 
   def game_won?
@@ -85,7 +94,7 @@ class Game
   end
 
   def game_over?
-    @turns_remaining == 0
+    @incorrect_remaining == 0
   end
 end
 
