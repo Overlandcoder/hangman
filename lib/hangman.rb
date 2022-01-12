@@ -2,7 +2,6 @@ class Game
   def initialize
     dictionary = File.open("5desk.txt", "r")
     words = File.readlines("5desk.txt", chomp: true)
-    @word = []
     randomize(words)
     @guesses = []
     @incorrect_guesses = []
@@ -11,6 +10,7 @@ class Game
   end
 
   def randomize(words)
+    @word = []
     until !@word.empty?
       @word = words.sample.downcase.gsub(/\W+/, '')
       randomize(words) if (@word.length < 5 || @word.length > 12)
@@ -41,8 +41,16 @@ class Game
   def intro
     puts "Let's play Hangman! Enter 1 to start a new game or 2 to load a saved game."
     puts "Enter 'save' at any point to save the game."
-    game_mode = gets.chomp
+    #game_mode = gets.chomp
+    game_mode = "1"
     new_game if game_mode == "1"
+    # saved_game if game_mode == "2"
+  end
+
+  def saved_game
+    # puts list of saved games
+    # puts "Enter the name of the saved game you wish to play:"
+    # 
   end
 
   def draw_dashes
@@ -64,6 +72,10 @@ class Game
   def solicit_guess
     puts "\nEnter your guess (a letter or the entire word):"
     @guess = gets.chomp.downcase
+    guess_again?
+  end
+  
+  def guess_again?
     if @guesses.include?(@guess) || @incorrect_guesses.include?(@guess)
       puts "You've already guessed that letter! Try again."
       solicit_guess
