@@ -6,6 +6,7 @@ class Game
     @guesses = []
     @incorrect_guesses = []
     @incorrect_remaining = 6
+    intro
   end
 
   def randomize(words)
@@ -17,28 +18,32 @@ class Game
     end
   end
 
-  def play
-    intro_text
+  def new_game
+    p @word
     draw_dashes
     loop do
-      incorrect_info
+      incorrect_remaining
+      display_incorrect
       solicit_guess
       check_answer
-      puts @dashes.join unless game_won?
+      display_letters
       if game_won?
-        puts "You win!"
+        puts "\nYou win!\nThe word was: #{@word}"
         break
       end
       if game_over?
-        puts "Game over. The word was: #{@word}."
+        display_incorrect
+        puts "\nGame over.\nThe word was: #{@word}"
         break
       end
     end
   end
 
-  def intro_text
+  def intro
     puts "Let's play Hangman! Enter 1 to start a new game or 2 to load a saved game."
-    puts "Enter 'save' at any point to save the game." 
+    puts "Enter 'save' at any point to save the game."
+    game_mode = gets.chomp
+    new_game if game_mode == "1"
   end
 
   def draw_dashes
@@ -49,9 +54,12 @@ class Game
     puts @dashes.join
   end
 
-  def incorrect_info
+  def incorrect_remaining
     puts ""
     puts "Incorrect guesses left: #{@incorrect_remaining}"
+  end
+
+  def display_incorrect
     puts "Incorrect: #{@incorrect_guesses.join(" ")}" if !@incorrect_guesses.empty?
   end
 
@@ -78,9 +86,13 @@ class Game
     end
   end
 
+  def display_letters
+    puts "\n#{@dashes.join}" unless game_won?
+  end
+
   def add_letters
     @word.split("").each_with_index do |val, idx|
-      @dashes[idx] = @guess if @guess == val
+      @dashes[idx] = "#{@guess} "  if @guess == val
     end
   end
 
@@ -90,7 +102,7 @@ class Game
   end
 
   def game_won?
-    @guess == @word || @dashes.join == @word
+    @guess == @word || @dashes.join.gsub(/\s+/, "") == @word
   end
 
   def game_over?
@@ -99,6 +111,5 @@ class Game
 end
 
 game = Game.new
-game.play
 
 
