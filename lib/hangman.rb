@@ -1,6 +1,8 @@
 require 'yaml'
 
 class Game
+  attr_reader :word, :guesses, :dashes, :incorrect_guesses, :incorrect_remaining
+
   def initialize
     words = File.readlines("5desk.txt", chomp: true)
     randomize(words)
@@ -22,14 +24,28 @@ class Game
     p @word
     draw_dashes
     loop do
-      incorrect_remaining
-      display_incorrect
+      display_incorrect_remaining
+      display_incorrect_guesses
       solicit_guess
+      break if save? && save_game
       check_answer
       display_letters
       break if game_won?
       break if game_over?
+    end
+  end
+
+  def play_game
+    p @word
+    loop do
+      display_incorrect_remaining
+      display_letters
+      display_incorrect_guesses
+      solicit_guess
       break if save? && save_game
+      check_answer
+      break if game_won?
+      break if game_over?
     end
   end
 
@@ -37,22 +53,26 @@ class Game
     puts "Let's play Hangman! Enter 1 to start a new game or 2 to load a saved game."
     puts "Enter 'save' at any point to save the game."
     game_mode = gets.chomp
-    play_play_new_game if game_mode == "1"
+    play_new_game if game_mode == "1"
     play_saved_game if game_mode == "2"
   end
 
   def play_saved_game
-    puts "Saved games:"
+    puts "\nSaved games:"
     puts Dir["saved/*"]
-    puts "Enter the name of the saved game you wish to play:"
+    puts "\nEnter the name of the saved game you wish to play:"
     game = gets.chomp
     load_game(game)
   end
 
   def load_game(game)
-    game_file = File.new("saved/#{game}.yaml")
-    yaml = game_file.read
-    YAML::load(yaml)
+    saved_game = YAML.load(File.read("saved/#{game}"))
+    @word = saved_game.word
+    @guesses = saved_game.guesses
+    @dashes = saved_game.dashes
+    @incorrect_guesses = saved_game.incorrect_guesses
+    @incorrect_remaining = saved_game.incorrect_remaining
+    play_game
   end
 
   def saved_games
@@ -67,11 +87,11 @@ class Game
     puts @dashes.join
   end
 
-  def incorrect_remaining
+  def display_incorrect_remaining
     puts "\nIncorrect guesses left: #{@incorrect_remaining}"
   end
 
-  def display_incorrect
+  def display_incorrect_guesses
     puts "Incorrect: #{@incorrect_guesses.join(" ")}" if !@incorrect_guesses.empty?
   end
 
