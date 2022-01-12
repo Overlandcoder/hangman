@@ -1,3 +1,5 @@
+require 'yaml'
+
 class Game
   def initialize
     words = File.readlines("5desk.txt", chomp: true)
@@ -16,7 +18,7 @@ class Game
     end
   end
 
-  def new_game
+  def play_new_game
     p @word
     draw_dashes
     loop do
@@ -34,16 +36,27 @@ class Game
   def intro
     puts "Let's play Hangman! Enter 1 to start a new game or 2 to load a saved game."
     puts "Enter 'save' at any point to save the game."
-    #game_mode = gets.chomp
-    game_mode = "1"
-    new_game if game_mode == "1"
-    load_game if game_mode == "2"
+    game_mode = gets.chomp
+    play_play_new_game if game_mode == "1"
+    play_saved_game if game_mode == "2"
   end
 
-  def load_game
-    # puts list of saved games
-    # puts "Enter the name of the saved game you wish to play:"
-    # 
+  def play_saved_game
+    puts "Saved games:"
+    puts Dir["saved/*"]
+    puts "Enter the name of the saved game you wish to play:"
+    game = gets.chomp
+    load_game(game)
+  end
+
+  def load_game(game)
+    game_file = File.new("saved/#{game}.yaml")
+    yaml = game_file.read
+    YAML::load(yaml)
+  end
+
+  def saved_games
+    Dir["saved/*.yaml"]
   end
 
   def draw_dashes
@@ -128,10 +141,10 @@ class Game
 
   def save_game
     puts "Enter a name to save your game file as:"
-    fname = gets.chomp
-    fname = File.open("#{fname}.rb", "w")
-    fname.puts Game
-    fname.close
+    @fname = gets.chomp
+    yaml = YAML::dump(self)
+    saved = File.new("saved/#{@fname}.yaml", "w")
+    saved.write(yaml)
     puts "Game saved."
     return true
   end
