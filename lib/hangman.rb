@@ -2,6 +2,7 @@ class Game
   def initialize
     dictionary = File.open("5desk.txt", "r")
     words = File.readlines("5desk.txt", chomp: true)
+    @word = []
     randomize(words)
     @guesses = []
     @incorrect_guesses = []
@@ -10,8 +11,6 @@ class Game
   end
 
   def randomize(words)
-    @word = []
-  
     until !@word.empty?
       @word = words.sample.downcase.gsub(/\W+/, '')
       randomize(words) if (@word.length < 5 || @word.length > 12)
@@ -55,8 +54,7 @@ class Game
   end
 
   def incorrect_remaining
-    puts ""
-    puts "Incorrect guesses left: #{@incorrect_remaining}"
+    puts "\nIncorrect guesses left: #{@incorrect_remaining}"
   end
 
   def display_incorrect
@@ -64,8 +62,7 @@ class Game
   end
 
   def solicit_guess
-    puts ""
-    puts "Enter your guess (a letter or the entire word):"
+    puts "\nEnter your guess (a letter or the entire word):"
     @guess = gets.chomp.downcase
     if @guesses.include?(@guess) || @incorrect_guesses.include?(@guess)
       puts "You've already guessed that letter! Try again."
@@ -111,5 +108,3 @@ class Game
 end
 
 game = Game.new
-
-
