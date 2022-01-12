@@ -1,6 +1,5 @@
 class Game
   def initialize
-    dictionary = File.open("5desk.txt", "r")
     words = File.readlines("5desk.txt", chomp: true)
     randomize(words)
     @guesses = []
@@ -26,15 +25,9 @@ class Game
       solicit_guess
       check_answer
       display_letters
-      if game_won?
-        puts "\nYou win!\nThe word was: #{@word}"
-        break
-      end
-      if game_over?
-        display_incorrect
-        puts "\nGame over.\nThe word was: #{@word}"
-        break
-      end
+      break if game_won?
+      break if game_over?
+      break if save? && save_game
     end
   end
 
@@ -44,10 +37,10 @@ class Game
     #game_mode = gets.chomp
     game_mode = "1"
     new_game if game_mode == "1"
-    # saved_game if game_mode == "2"
+    load_game if game_mode == "2"
   end
 
-  def saved_game
+  def load_game
     # puts list of saved games
     # puts "Enter the name of the saved game you wish to play:"
     # 
@@ -77,7 +70,7 @@ class Game
   
   def guess_again?
     if @guesses.include?(@guess) || @incorrect_guesses.include?(@guess)
-      puts "You've already guessed that letter! Try again."
+      puts "\nYou've already guessed that letter! Try again."
       solicit_guess
     end
   end
@@ -86,7 +79,7 @@ class Game
     if @guess.length == 1
       if @word.include?(@guess)
         @guesses << @guess
-        add_letters
+        add_letter
       else
         incorrect_guess
       end
@@ -99,7 +92,7 @@ class Game
     puts "\n#{@dashes.join}" unless game_won?
   end
 
-  def add_letters
+  def add_letter
     @word.split("").each_with_index do |val, idx|
       @dashes[idx] = "#{@guess} "  if @guess == val
     end
@@ -110,13 +103,32 @@ class Game
     @incorrect_remaining -= 1
   end
 
+  def save?
+    @guess == "save"
+  end
+
   def game_won?
-    @guess == @word || @dashes.join.gsub(/\s+/, "") == @word
+    if @guess == @word || @dashes.join.gsub(/\s+/, "") == @word
+      puts "\nYou win!\nThe word was: #{@word}"
+    end
   end
 
   def game_over?
-    @incorrect_remaining == 0
+    if @incorrect_remaining == 0
+      display_incorrect
+      puts "\nGame over.\nThe word was: #{@word}"
+    end
+  end
+
+  def save_game
+    puts "Enter a name to save your game file as:"
+    fname = gets.chomp
+    fname = File.open("#{fname}.rb", "w")
+    fname.puts Game
+    fname.close
+    puts "Game saved."
+    return true
   end
 end
 
-game = Game.new
+Game.new
