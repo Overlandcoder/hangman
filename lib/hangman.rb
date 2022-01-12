@@ -84,12 +84,12 @@ class Game
         incorrect_guess
       end
     else
-      @incorrect_remaining -= 1 if !game_won?
+      @incorrect_remaining -= 1 if !correct_answer
     end
   end
 
   def display_letters
-    puts "\n#{@dashes.join}" unless game_won?
+    puts "\n#{@dashes.join}" unless correct_answer
   end
 
   def add_letter
@@ -108,15 +108,21 @@ class Game
   end
 
   def game_won?
-    if @guess == @word || @dashes.join.gsub(/\s+/, "") == @word
+    if correct_answer
       puts "\nYou win!\nThe word was: #{@word}"
+      return true
     end
+  end
+
+  def correct_answer
+    @guess == @word || @dashes.join.gsub(/\s+/, "") == @word
   end
 
   def game_over?
     if @incorrect_remaining == 0
       display_incorrect
       puts "\nGame over.\nThe word was: #{@word}"
+      return true
     end
   end
 
