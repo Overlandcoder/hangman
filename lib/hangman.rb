@@ -75,10 +75,6 @@ class Game
     play_game
   end
 
-  def saved_games
-    Dir["saved/*.yaml"]
-  end
-
   def draw_dashes
     @dashes = []
     @word.length.times do
